@@ -21,10 +21,12 @@ import sys
 import rclpy
 import pathlib
 import numpy as np
+
 from rclpy.node import Node
 from nav_msgs.msg import OccupancyGrid
 from visualization_msgs.msg import Marker
 from geometry_msgs.msg import Point
+from rclpy.action import ActionClient
 from utils import *
 
 
@@ -35,6 +37,9 @@ class MapExplorer(Node):
             OccupancyGrid, "/bot4/map", self.map_callback, 10
         )
         self.marker_pub = self.create_publisher(Marker, "explorer_point", 10)
+        self.action_client = ActionClient(self, NavigateToPose, "bot4/navigate_to_pose")
+        self.action_client.wait_for_server()
+        self.get_logger().info("Action server is ready.")
         self.map_info = None
 
     def map_callback(self, msg):
@@ -45,6 +50,12 @@ class MapExplorer(Node):
         map_explorer = empty_boundaries_with_mask(map_data)
         center = explorer_cluster(map_explorer)
         self.publish_center(center)
+        if len(center) >= 1:
+            # 1개만 로직 필요
+            y_idx, x_idx = center[0]
+            x, y = grid_to_world(x_idx, y_idx, self.map_info)
+            goal_pose = self.create_goal_pose([x, y])
+            self.send_goal(goal_pose)
 
     def publish_center(self, center):
         """
@@ -78,6 +89,51 @@ class MapExplorer(Node):
             self.get_logger().info(txt)
 
         self.marker_pub.publish(marker)
+
+    def create_goal_pose(self, goal_coords: list) -> PoseStamped:
+        """
+        네비게이션 목표를 나타내는 PoseStamped 메시지를 생성합니다.
+        """
+        goal_pose = PoseStamped()
+        goal_pose.header.frame_id = "map"
+        goal_pose.header.stamp = self.get_clock().now().to_msg()
+        goal_pose.pose.position.x = float(goal_coords[0])
+        goal_pose.pose.position.y = float(goal_coords[1])
+        goal_pose.pose.position.z = 0.0
+        goal_pose.pose.orientation.x = 0.0
+        goal_pose.pose.orientation.y = 0.0
+        goal_pose.pose.orientation.z = 0.0
+        goal_pose.pose.orientation.w = 1.0  # 기본 방향
+        return goal_pose
+
+    def send_goal(self, goal_pose: PoseStamped) -> None:
+        """
+        NavigateToPose 액션 서버에 네비게이션 목표를 전송합니다.
+        """
+        if not self.action_client.wait_for_server(timeout_sec=5.0):
+            self.get_logger().error("NavigateToPose action server not available!")
+            return
+
+        goal_msg = NavigateToPose.Goal()
+        goal_msg.pose = goal_pose
+
+        self.get_logger().info(
+            f"Sending goal: ({goal_pose.pose.position.x}, {goal_pose.pose.position.y})"
+        )
+        future_goal = self.action_client.send_goal_async(goal_msg)
+        future_goal.add_done_callback(self.get_result_callback)
+
+    def get_result_callback(self, future) -> None:
+        """
+        네비게이션 목표 실행 결과를 처리합니다.
+        """
+        future_result = future.result().get_result_async()
+        result = future_result.result()
+        if result is not None:
+            if (result is not None) and (result.status == 4):
+                self.get_logger().info("Goal successfully reached!")
+            else:
+                self.get_logger().error(f"Goal failed with status: {result.status}")
 
 
 def main(args=None):

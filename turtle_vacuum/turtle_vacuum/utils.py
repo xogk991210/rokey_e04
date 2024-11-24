@@ -2,6 +2,9 @@
 import numpy
 import cv2
 from sklearn.cluster import DBSCAN
+from nav2_msgs.action import NavigateToPose
+from geometry_msgs.msg import PoseStamped
+from rclpy.node import Node
 
 DIRECTIONS = [
     (-1, -1),
@@ -99,6 +102,7 @@ def explorer_cluster(map_explorer: numpy.ndarray):
 
 
 def grid_to_world(x_idx, y_idx, map_info):
+    "맵 좌표계로 변환"
     x = (
         x_idx * map_info.resolution
         + map_info.origin.position.x
@@ -110,3 +114,33 @@ def grid_to_world(x_idx, y_idx, map_info):
         + map_info.resolution / 2
     )
     return x, y
+
+
+# def send_goal(node: Node, goal_pose: PoseStamped) -> None:
+#     """
+#     NavigateToPose 액션 서버에 네비게이션 목표를 전송합니다.
+#     """
+#     if not node.navigation_client.wait_for_server(timeout_sec=5.0):
+#         node.get_logger().error("NavigateToPose action server not available!")
+#         return
+
+#     goal_msg = NavigateToPose.Goal()
+#     goal_msg.pose = goal_pose
+
+#     node.get_logger().info(
+#         f"Sending goal: ({goal_pose.pose.position.x}, {goal_pose.pose.position.y})"
+#     )
+#     future_goal = node.navigation_client.send_goal_async(goal_msg)
+#     future_goal.add_done_callback(get_result_callback)
+
+
+# def get_result_callback(node: Node, future) -> None:
+#     """
+#     네비게이션 목표 실행 결과를 처리합니다.
+#     """
+#     future_result = future.result().get_result_async()
+#     result = future_result.result()
+#     if result.status == 4:
+#         node.get_logger().info("Goal successfully reached!")
+#     else:
+#         node.get_logger().error(f"Goal failed with status: {result.status}")
