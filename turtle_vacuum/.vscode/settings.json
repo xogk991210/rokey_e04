@@ -1,0 +1,36 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/amtl/rokey_ws/install/turtle_vacuum/lib/python3.10/site-packages",
+        "/home/amtl/rokey_ws/install/store_msgs/local/lib/python3.10/dist-packages",
+        "/home/amtl/turtlebot4_ws/install/turtlebot4_navigation/local/lib/python3.10/dist-packages",
+        "/home/amtl/turtlebot4_ws/install/turtlebot4_msgs/local/lib/python3.10/dist-packages",
+        "/home/amtl/turtlebot_ws/build/turtlebot3_teleop",
+        "/home/amtl/turtlebot_ws/install/turtlebot3_teleop/lib/python3.10/site-packages",
+        "/home/amtl/turtlebot_ws/build/turtlebot3_example",
+        "/home/amtl/turtlebot_ws/install/turtlebot3_example/lib/python3.10/site-packages",
+        "/home/amtl/turtlebot_ws/install/turtlebot3_msgs/local/lib/python3.10/dist-packages",
+        "/home/amtl/turtlebot_ws/install/dynamixel_sdk_custom_interfaces/local/lib/python3.10/dist-packages",
+        "/home/amtl/ros2_ws/build/henes_pkg",
+        "/home/amtl/ros2_ws/install/henes_pkg/lib/python3.10/site-packages",
+        "/home/amtl/ros2_ws/install/henes_msgs/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/amtl/rokey_ws/install/turtle_vacuum/lib/python3.10/site-packages",
+        "/home/amtl/rokey_ws/install/store_msgs/local/lib/python3.10/dist-packages",
+        "/home/amtl/turtlebot4_ws/install/turtlebot4_navigation/local/lib/python3.10/dist-packages",
+        "/home/amtl/turtlebot4_ws/install/turtlebot4_msgs/local/lib/python3.10/dist-packages",
+        "/home/amtl/turtlebot_ws/build/turtlebot3_teleop",
+        "/home/amtl/turtlebot_ws/install/turtlebot3_teleop/lib/python3.10/site-packages",
+        "/home/amtl/turtlebot_ws/build/turtlebot3_example",
+        "/home/amtl/turtlebot_ws/install/turtlebot3_example/lib/python3.10/site-packages",
+        "/home/amtl/turtlebot_ws/install/turtlebot3_msgs/local/lib/python3.10/dist-packages",
+        "/home/amtl/turtlebot_ws/install/dynamixel_sdk_custom_interfaces/local/lib/python3.10/dist-packages",
+        "/home/amtl/ros2_ws/build/henes_pkg",
+        "/home/amtl/ros2_ws/install/henes_pkg/lib/python3.10/site-packages",
+        "/home/amtl/ros2_ws/install/henes_msgs/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}
