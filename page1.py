@@ -1,43 +1,56 @@
-from PySide2.QtWidgets import (
-    QApplication,
-    QMainWindow,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QVBoxLayout,
-    QCheckBox,
-    QWidget,
-)
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QFont
+import smtplib
 import sys
-from login import *
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
 
 
-class LoginWindow(QMainWindow):
+class Login:
+    def __init__(self, ID, Password):
+        self.id = ID
+        self.password = Password
+        self.server = self.google_login()
+
+    def google_login(self):
+        try:
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login(self.id, self.password)
+            return server
+        except Exception as e:
+            print(e)
+
+    def create_msg(self, subject, txt):
+        try:
+            msg = MIMEMultipart()
+            msg["Subject"] = subject
+            msg.attach(MIMEText(txt, "plain"))
+            return msg
+        except Exception as e:
+            print(e)
+
+    def pub_email(self, msg, sub):
+        try:
+            msg["From"] = self.id
+            msg["To"] = sub
+            self.server.sendmail(self.id, sub, msg.as_string())
+            print("send")
+        except Exception as e:
+            print(e)
+
+
+class Page1(QWidget):
     def __init__(self):
         super().__init__()
+        self.user_id = None
+        self.user_password = None
 
-        # 모니터 해상도 가져오기
-        screen = QApplication.primaryScreen()
-        screen_geometry = screen.geometry()
-        screen_width = screen_geometry.width()
-        screen_height = screen_geometry.height()
-
-        self.setWindowTitle("Login")
-        self.setGeometry(
-            int(screen_width * 0.1),
-            int(screen_height * 0.1),
-            int(screen_width * 0.8),
-            int(screen_height * 0.8),
-        )
-        # 중앙 위젯 및 레이아웃 설정
-        central_widget = QWidget()
+    def setupUi(self):
         layout = QVBoxLayout()
 
-        # 아이디 라벨과 입력 칸
         self.label_id = QLabel("ID : ")
-        self.label_id.setFont(QFont("Arial", 20))
         self.input_id = QLineEdit()
         self.input_id.setPlaceholderText("아이디를 입력하세요")
         layout.addWidget(self.label_id)
@@ -45,7 +58,6 @@ class LoginWindow(QMainWindow):
 
         # 비밀번호 라벨과 입력 칸
         self.label_password = QLabel("Password:")
-        self.label_password.setFont(QFont("Arial", 20))
         self.input_password = QLineEdit()
         self.input_password.setEchoMode(QLineEdit.Password)  # 비밀번호 마스킹 설정
         self.input_password.setPlaceholderText("비밀번호를 입력하세요")
@@ -54,21 +66,16 @@ class LoginWindow(QMainWindow):
 
         # 비밀번호 보기 체크박스
         self.checkbox_show_password = QCheckBox("비밀번호 보기")
-        self.checkbox_show_password.setFont(QFont("Arial", 12))
         self.checkbox_show_password.stateChanged.connect(
             self.toggle_password_visibility
         )
         layout.addWidget(self.checkbox_show_password)
 
-        # 로그인 버튼
         self.login_button = QPushButton("Login")
-        self.login_button.setFont(QFont("Arial", 20))
         self.login_button.clicked.connect(self.handle_login)
         layout.addWidget(self.login_button)
 
-        # 레이아웃을 중앙 위젯에 설정
-        central_widget.setLayout(layout)
-        self.setCentralWidget(central_widget)
+        self.setLayout(layout)
 
     def toggle_password_visibility(self, state):
         """
@@ -85,13 +92,6 @@ class LoginWindow(QMainWindow):
         """
         user_id = self.input_id.text()
         user_password = self.input_password.text()
-        gmail = Login(user_id, user_password)
-        msg = gmail.create_msg("a", "b")
-        gmail.pub_email(msg, "ekqls6655@naver.com")
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = LoginWindow()
-    window.show()
-    sys.exit(app.exec_())
+        # gmail = Login(user_id, user_password)
+        # msg = gmail.create_msg("a", "b")
+        # gmail.pub_email(msg, "ekqls6655@naver.com")
