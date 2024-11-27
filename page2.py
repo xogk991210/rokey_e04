@@ -222,7 +222,7 @@ class Page2(QWidget):
         )
 
     def handle_task_1_click(self):
-        QMessageBox.information(None, "Task 1", "Task 11111 버튼이 눌렸습니다!")
+        QMessageBox.information(None, "Task 1", "Task 1 버튼이 눌렸습니다!")
 
     def handle_task_2_click(self):
         QMessageBox.information(None, "Task 2", "Task 2 버튼이 눌렸습니다!")

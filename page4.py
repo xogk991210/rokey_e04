@@ -2,6 +2,8 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 import sys
+import serial
+import threading
 
 
 class Page4(QWidget):
@@ -49,7 +51,7 @@ class Page4(QWidget):
         )
         self.back_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.main_layout.addWidget(self.back_button)
-
+        self.conveyor = Conveyor()
         self.back_button.clicked.connect(self.back_button_clicked)
         self.pushButton.clicked.connect(self.button1_clicked)
         self.pushButton_2.clicked.connect(self.button2_clicked)
@@ -61,7 +63,39 @@ class Page4(QWidget):
     def button1_clicked(self):
         if self.label is not None:
             self.label.setText("컨베이어 작동중")
+            self.conveyor.start_conveyor(True)
 
     def button2_clicked(self):
         if self.label is not None:
             self.label.setText("컨베이어 작동 중지")
+            self.conveyor.start_conveyor(False)
+
+
+class Conveyor:
+    def __init__(self):
+        try:
+            self.ser = serial.Serial("/dev/ttyACM0", 115200, timeout=1)
+            self.running = False  # 스레드 실행 여부
+            self.thread = None  # 스레드 객체
+        except Exception as e:
+            print(f"시리얼 포트를 열지 못했습니다: {e}")
+
+    def start_conveyor(self, run_conveyor):
+        if run_conveyor and not self.running:
+            self.running = True
+            self.thread = threading.Thread(target=self.run, args=(True,))
+            self.thread.start()
+        elif not run_conveyor and self.running:
+            self.running = False
+            self.thread = threading.Thread(target=self.run, args=(False,))
+            self.thread.start()
+
+    def run(self, run_command):
+        try:
+            command = "1\n" if run_command else "0\n"
+            self.ser.write(command.encode("utf-8"))
+            response = self.ser.read().decode("utf-8")
+            print(f"아두이노 응답: {response}")
+            self.ser.flush()
+        except Exception as e:
+            print(f"오류가 발생했습니다: {e}")
