@@ -89,10 +89,11 @@ class OBJNode(Node):
     def cam_open(self):
         """
         카메라 초기 설정 함수
+        카메라를 열 수 없으면 인덱스를 바꿔서 다시 시도합니다.
         """
         idx = 4
         while True:
-            self.cap = cv2.VideoCapture(idx)  # PC Camera
+            self.cap = cv2.VideoCapture(idx)
             if not self.cap.isOpened():
                 print(f"{idx} 카메라를 열 수 없습니다.")
                 idx -= 2
@@ -138,13 +139,16 @@ class OBJNode(Node):
 
     def state_pub(self):
         """
-        손님 인식 후 GUI 정보를 보내는 함수
+        손님 인식 후 GUI에게 정보를 보내는 함수
         """
         msg = Int8()
         msg.data = 0
         self.publisher_state.publish(msg)
 
     def pathxy_pub(self, class_id, x, y):
+        """
+        객체의 좌표 토픽을 발행하는 함수
+        """
         msg = PathXY()
         msg.stamp = self.get_clock().now().to_msg()
         msg.x = int(x)
@@ -191,14 +195,15 @@ class OBJNode(Node):
             return image
         boxes = results[0].boxes.xywh.cpu()
         track_ids = results[0].boxes.id.int().cpu().tolist()
-        track_cls = class_ids = results[0].boxes.cls.int().cpu().tolist()
+        track_cls = results[0].boxes.cls.int().cpu().tolist()
         image = results[0].plot()
         for box, track_id, track_cl in zip(boxes, track_ids, track_cls):
             x, y, w, h = box
             self.pathxy_pub(track_cl, x, y)
             track = self.track_history[track_id]
             track.append((float(x), float(y)))
-            if len(track) > 30:
+            #
+            if len(track) > 25:
                 track.pop(0)
             points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
             cv2.polylines(
@@ -213,7 +218,7 @@ class OBJNode(Node):
     def main_callback(self):
         """
         타이머 콜백
-            일정 시간동안 노드의 메인 기능을 수행하는 함수
+        일정 시간동안 노드의 메인 기능을 수행하는 함수
         """
         ret, frame = self.cap.read()
         top_view = self.top_image(frame)
