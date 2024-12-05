@@ -3,37 +3,19 @@ import numpy as np
 import cv2
 import os
 from rclpy.node import Node
-from nav_msgs.msg import Path
-from ultralytics import YOLO  # YOLOv8 모델
+from store_msgs.msg import PathXY  # 우리가 만든 메시지 타입입니다.
 
 """
-Path Message
+PathXY :
 
-std_msgs/Header header
-geometry_msgs/PoseStamped[] poses
 
+builtin_interfaces/Time stamp
+int16 x
+int16 y
 """
 TIMER = 0.05
 WIDTH = 1280
 HEIGHT = 720
-SRC = np.array(
-    [
-        [293, 219],
-        [1087, 211],
-        [108, 640],
-        [1231, 634],
-    ],
-    dtype=np.float32,
-)
-DST = np.array(
-    [
-        [0, 0],
-        [WIDTH, 0],
-        [0, HEIGHT],
-        [WIDTH, HEIGHT],
-    ],
-    dtype=np.float32,
-)
 
 
 class CMDNode(Node):
@@ -41,10 +23,10 @@ class CMDNode(Node):
         super().__init__("cmd_node")
         self.timer = self.create_timer(TIMER, self.main_callback)
         self.subscription = self.create_subscription(
-            Path, "path_TB", self.TB_callback, 10
+            PathXY, "path_TB", self.TB_callback, 10
         )
         self.subscription = self.create_subscription(
-            Path, "path_RC", self.RC_callback, 10
+            PathXY, "path_RC", self.RC_callback, 10
         )
         self.subscription
 
