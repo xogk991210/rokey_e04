@@ -202,7 +202,6 @@ class OBJNode(Node):
             self.pathxy_pub(track_cl, x, y)
             track = self.track_history[track_id]
             track.append((float(x), float(y)))
-            #
             if len(track) > 25:
                 track.pop(0)
             points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))

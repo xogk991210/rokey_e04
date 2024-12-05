@@ -40,8 +40,8 @@ def capture_image():
     state = 0
     while True:
         ret, frame = cap.read()
-        top_view = warp_image(frame)
-        ww = top_view[int(HEIGHT / 3 * 1.5) : HEIGHT, 0 : int(WIDTH / 3 - 11)]
+        # top_view = warp_image(frame)
+        # ww = top_view[int(HEIGHT / 3 * 1.5) : HEIGHT, 0 : int(WIDTH / 3 - 11)]
         # print(ww.shape)
         results = model.predict(ww, save=False, imgsz=640, conf=0.9)
         detections = results[0].boxes
@@ -66,8 +66,8 @@ def capture_image():
         )
 
         # print(results)
-        top_view[int(HEIGHT / 3 * 1.5) : HEIGHT, 0 : int(WIDTH / 3 - 11)] = yolo_view
-        cv2.imshow("Webcam", top_view)
+        # top_view[int(HEIGHT / 3 * 1.5) : HEIGHT, 0 : int(WIDTH / 3 - 11)] = yolo_view
+        cv2.imshow("Webcam", ret, frame=cap.read())
 
         key = cv2.waitKey(1)
         if key == ord("q"):
